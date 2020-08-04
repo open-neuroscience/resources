@@ -25,6 +25,11 @@ The reason why we have the form system is that it makes it open for everyone to 
 Also, there are so many amazing projects coming out in Neurosciences that it would be impossible for us to keep track and log them all!
 
 
+Open Neuroscience tech stack leverages open source tools as much as possible:
+- The website is based on HUGO + Academic Theme
+- Everything is hosted on github [here](https://github.com/open-neuroscience)
+- We use [plausible.io](https://[plausible.io) to see visit stats on the website. It respects visitors privacy, doesn't install cookies on your computer
+  - You can check our visitor stats [here](https://plausible.io/open-neuroscience.com?period=60d)
 
 Please [get in touch](mailto:openeuroscience@gmail.com) if you have any questions or would like to collaborate!
 
