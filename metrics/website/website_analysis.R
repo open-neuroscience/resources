@@ -1,12 +1,20 @@
-
-
-
 # Website analysis  -------------------------------------------------------
 
 library(tidyverse)
 library(sf)
 library(rnaturalearth)
 
+# wordpress data
+li <- list.files(path= "stats_wordpress_website_2013-2016/",
+                 pattern = "countries", full.names = T)
+
+wordpress <- lapply(li, function(tt) read_csv(tt, col_names = FALSE)) %>%
+  bind_rows()
+names(wordpress) <- c("Country", "views")
+
+# Wordpress data comes with "total" as NA at the end
+# remove that 
+wordpress <- filter(wordpress, !is.na(Country))
 country_data <- read_csv("2020_march_sep_website_visits_country.csv")
 # clean the column
 country_data <- country_data %>% 
@@ -14,7 +22,10 @@ country_data <- country_data %>%
   mutate(views= as.numeric(views),
          percent = parse_number(percent))
 
+# Bind the two datasets
+country_data <- country_data %>% bind_rows(wordpress)
 
+# Get world sf data
 world <- ne_countries(scale = 'small', returnclass = 'sf')
 
 world_robinson <- st_transform(world, crs = '+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
@@ -33,13 +44,20 @@ filter(country_data, Country %in% world$name_long == FALSE) %>%
 country_data <- 
   mutate(country_data,
          name_long = case_when(
-           Country == "Korea" ~ "South Korea",
+           Country == "Korea" ~ "Republic of Korea",
+           Country == "South Korea" ~ "Republic of Korea",
            Country == "Iran, Islamic Republic Of" ~ "Iran",
            Country == "Viet Nam" ~ "Vietnam",
+           Country == "Russia" ~ "Russian Federation",
+           Country == "Bosnia & Herzegovina" ~ "Bosnia and Herzegovina",
            # if nothing matches, keep the country
            TRUE ~ Country
          ))
 
+
+# summarise
+country_data <- country_data %>% group_by(name_long) %>% 
+                summarise(views = sum(views))
 
 ggplot() +
   geom_sf(data = world_robinson) +
@@ -48,7 +66,7 @@ ggplot() +
           color="black",
           size=0.5, na.rm = TRUE)+
   labs(title = "Website visits",
-       subtitle = "Period: May 2020 — Sep 2020") +
+       subtitle = "Period: 2013 — 2020") +
   ggthemes::theme_clean() +
   scale_fill_gradient(low="white", high="#F7490C",
                       na.value = "white") +
