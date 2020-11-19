@@ -12,10 +12,10 @@ create_yaml <- function(title, authors, categories){
   lay <- "layout: post"
   # categories come shQuoted properly from parse_tags()
   categories <- paste0("[", categories,"]")
-  catt <- paste("categories:", categories) 
+  catt <- paste("categories:", categories)
   # tags are the same as categories for now...
   tagg <- paste("tags:", categories)
-  
+
   # make the yaml
   output <- paste(yaml_break,
                   tit,
@@ -26,16 +26,23 @@ create_yaml <- function(title, authors, categories){
                   tagg,
                   yaml_break, sep = "\n")
   return(output)
-  
+
 }
 
 create_body <- function(title, image, description, authors, website, video, post_author){
   # remove all spaces in title
   title <- gsub(x = title , pattern = " ", replacement = "_")
+  # remove colons
+  title <- gsub(x = title , pattern = ":", replacement = "")
+  # remove brackets
+  # title <- gsub(x = title , pattern = "[()]", replacement = "")
+
   # remove all other punctuation things
   title <- stringr::str_replace_all(string = title,
                                     pattern="[[:punct:]]",
                                     replacement="_")
+  #print titles
+  print(title)
   # make folder on posts if it doesn't exist
   root = "content/en/post"
   if(title %in% list.files(root) == FALSE){
@@ -47,7 +54,7 @@ create_body <- function(title, image, description, authors, website, video, post
   # add the "![]()"
   # if the name is called "featured" we don't need to link to it in the post
   #image <- paste0("![](", image, ")")
-  
+
   # bind things into "description"
   if (is.na(video)){
     description <- paste(description,
@@ -60,11 +67,11 @@ create_body <- function(title, image, description, authors, website, video, post
                          post_author,
                          sep="\n")
   } else {
-    
+
     # short cut is {{< youtube w7Ft2ymGmfc >}}
     # emb_video <- paste("{{< youtube")
-    
-    description <- paste(description, 
+
+    description <- paste(description,
                          "## Project Author(s)",
                          authors,
                          "## Project Links",
@@ -76,7 +83,7 @@ create_body <- function(title, image, description, authors, website, video, post
                          post_author,
                          sep="\n")
   }
-  
+
   # paste things
   output <- paste(
     # image,
@@ -90,14 +97,14 @@ get_image <- function(image_link, path){
 
   # we will default to our logo when things are nasty on the image side
   our_logo <- "https://raw.githubusercontent.com/open-neuroscience/open-neuroscience-website/master/content/en/authors/admin/avatar.png"
-  
+
   url <- case_when(str_detect(image_link, "png") ~ str_extract(image_link, ".+png"),
                    str_detect(image_link, "jpg") ~ str_extract(image_link, ".+jpg"),
                    str_detect(image_link, "gif") ~ str_extract(image_link, ".+gif"),
                    # When it doesn't detect, we will fall back to the logo image
                    TRUE ~ our_logo
                    )
-  
+
   filename <- case_when(
     str_detect(image_link, "png") ~ file.path(path, "featured.png"),
     str_detect(image_link, "jpg") ~ file.path(path, "featured.jpg"),
@@ -105,17 +112,17 @@ get_image <- function(image_link, path){
     # we need to fail with featured.png because our logo image is .png
     TRUE ~ file.path(path, "featured.png")
   )
-  
+
   # check whether there's a problem with the image
   if(url == our_logo){
     write.table(paste("problem with", image_link),
                 file = paste0(tools::file_path_sans_ext(filename), ".txt"),
                 row.names = FALSE)
   }
-  
+
   # if this thing is not an URL it will fail
   url <- download.file(url, filename, mode = "wb")
-  
+
   # check if the image can be loaded
   img <- try(imager::load.image(filename))
   if (class(img) == "try-error"){
@@ -126,9 +133,9 @@ get_image <- function(image_link, path){
     file.copy("content/en/authors/admin/avatar.png",
               filename,
               overwrite = TRUE)
-    
-  }
 
+  }
+  print(filename)
   return(filename)
 }
 
@@ -146,11 +153,12 @@ parse_tags <- function(df){
     filter(value != "NA") %>%
     summarise(categories = paste(shQuote(value), collapse=",")) %>%
     pull(categories)
-  
+
 }
 
 # this is the ID
 ID <- "1qF5P8RKBSiE6qyInIoTBHdq2m9o5ZnvhnGKkmaJ83uI"
+gs4_auth("openeuroscience@gmail.com")
 target <- read_sheet(ID)
 # this comes handy for later,
 # so that we don't add a bunch of columns when we write back
@@ -159,11 +167,22 @@ original_columns <- names(target)
 # parse tags
 target$tags <- parse_tags(target)
 # do big changes
-post_df <- target %>% 
+post_df <- target %>%
   filter(is.na(posted)|posted==FALSE) %>%
-  mutate(         
+  mutate(
     # make filename
+
+
     filename = gsub(x = `Project Title` , pattern = " ", replacement = "_"),
+    # remove colons
+    filename = gsub(x = filename , pattern = ":", replacement = ""),
+    # remove brackets
+    # filename = gsub(x = filename , pattern = "[()]", replacement = "")
+
+    # remove all other punctuation things
+    filename = stringr::str_replace_all(string = filename,
+                                      pattern="[[:punct:]]",
+                                      replacement="_"),
     filename = file.path("content/en/post", filename, "index.md")) %>%
   # we could have repeated posts maybe worth to check in the future
   # distinct()
