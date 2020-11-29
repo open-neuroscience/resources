@@ -53,7 +53,7 @@ p <- ggplot(df, aes(1:nrow(df),
   ggthemes::theme_clean() +
   theme(plot.background = element_rect(color=NA))+
   scale_y_continuous(labels=scales::label_number_si())+
-  labs(title="Cummulative tweet views",
+  labs(title="Cumulative tweet views",
        subtitle = subtitle_period,
        caption = caption_twitter,
        x= "Tweets", y="")
@@ -66,3 +66,4 @@ p <- ggplot(df, aes(1:nrow(df),
 
 p
 ggsave("cum_views_tweet.png", width=6, height=4, units = "in")
+
