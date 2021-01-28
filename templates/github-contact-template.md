@@ -9,7 +9,7 @@ We are reaching out because we would love to have your project listed on [Open N
 
 Open Neuroscience is a community run project, where we are curating and highlighting open source projects related to neurosciences!
 
-Briefly, we have a website where short descritptions about projects are listed, with links to the projects themselves, their authors, together with images and other links. 
+Briefly, we have a website where short descriptions about projects are listed, with links to the projects themselves, their authors, together with images and other links. 
 
 Once a new entry is made, we make a quick check for spam, and publish it. 
 
