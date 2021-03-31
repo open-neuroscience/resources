@@ -30,19 +30,9 @@ create_yaml <- function(title, authors, categories){
 }
 
 create_body <- function(title, image, description, authors, website, video, post_author){
-  # remove all spaces in title
-  title <- gsub(x = title , pattern = " ", replacement = "_")
-  # remove colons
-  title <- gsub(x = title , pattern = ":", replacement = "")
-  # remove brackets
-  # title <- gsub(x = title , pattern = "[()]", replacement = "")
-
-  # remove all other punctuation things
-  title <- stringr::str_replace_all(string = title,
-                                    pattern="[[:punct:]]",
-                                    replacement="_")
+  title <- clean_post_title(title)
   #print titles
-  print(title)
+  #print(title)
   # make folder on posts if it doesn't exist
   root = "content/en/post"
   if(title %in% list.files(root) == FALSE){
@@ -101,6 +91,7 @@ get_image <- function(image_link, path){
   url <- case_when(str_detect(image_link, "png") ~ str_extract(image_link, ".+png"),
                    str_detect(image_link, "jpg") ~ str_extract(image_link, ".+jpg"),
                    str_detect(image_link, "gif") ~ str_extract(image_link, ".+gif"),
+                   str_detect(image_link, "svg") ~ str_extract(image_link, ".+svg"),
                    # When it doesn't detect, we will fall back to the logo image
                    TRUE ~ our_logo
                    )
@@ -109,6 +100,7 @@ get_image <- function(image_link, path){
     str_detect(image_link, "png") ~ file.path(path, "featured.png"),
     str_detect(image_link, "jpg") ~ file.path(path, "featured.jpg"),
     str_detect(image_link, "gif") ~ file.path(path, "featured.gif"),
+    str_detect(image_link, "svg") ~ file.path(path, "featured.svg"),
     # we need to fail with featured.png because our logo image is .png
     TRUE ~ file.path(path, "featured.png")
   )
@@ -125,7 +117,7 @@ get_image <- function(image_link, path){
 
   # check if the image can be loaded
   img <- try(imager::load.image(filename))
-  if (class(img) == "try-error"){
+  if (class(img) == "try-error" & str_detect(filename, pattern = "svg") == FALSE){
     write.table(paste("problem with", image_link),
                 file = paste0(tools::file_path_sans_ext(filename), ".txt"),
                 row.names = FALSE)
@@ -156,6 +148,24 @@ parse_tags <- function(df){
 
 }
 
+clean_post_title <- function(dirty_title, with_path = FALSE){
+  # make filename
+  clean_title = gsub(x =  dirty_title, pattern = " ", replacement = "_")
+  # remove all other punctuation things
+  clean_title = stringr::str_replace_all(string = clean_title,
+                                      pattern="[[:punct:]]",
+                                      replacement="_")
+  # this process might create multiple underscores
+  #remove triple underscore
+  clean_title = gsub(x = clean_title , pattern = "_+", replacement = "_")
+  if (with_path == TRUE){
+    # create file path
+    clean_title = file.path("content/en/post", clean_title, "index.md")
+  }
+  return(clean_title)
+}
+
+
 # this is the ID
 ID <- "1qF5P8RKBSiE6qyInIoTBHdq2m9o5ZnvhnGKkmaJ83uI"
 gs4_auth("openeuroscience@gmail.com")
@@ -169,21 +179,7 @@ target$tags <- parse_tags(target)
 # do big changes
 post_df <- target %>%
   filter(is.na(posted)|posted==FALSE) %>%
-  mutate(
-    # make filename
-
-
-    filename = gsub(x = `Project Title` , pattern = " ", replacement = "_"),
-    # remove colons
-    filename = gsub(x = filename , pattern = ":", replacement = ""),
-    # remove brackets
-    # filename = gsub(x = filename , pattern = "[()]", replacement = "")
-
-    # remove all other punctuation things
-    filename = stringr::str_replace_all(string = filename,
-                                      pattern="[[:punct:]]",
-                                      replacement="_"),
-    filename = file.path("content/en/post", filename, "index.md")) %>%
+  mutate(filename = clean_post_title(`Project Title`, with_path = TRUE)) %>%
   # we could have repeated posts maybe worth to check in the future
   # distinct()
   # we need to apply the functions rowwise
@@ -205,8 +201,7 @@ lapply(1:nrow(post_df), function(x) write_md(post_df$filename[x], post_df$post[x
 # change posted to TRUE on google sheets
 # I think it is safe to overwrite directly here
 
-target$posted <- str_replace_all(string = target$`Project Title`,
-                                 pattern = " ", replacement = "_") %in%
+target$posted <- clean_post_title(target$`Project Title`, with_path = FALSE) %in%
   list.files("content/en/post/")
 
 # overwrite the original!
