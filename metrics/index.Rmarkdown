@@ -1,0 +1,95 @@
+---
+title: "Metrics"
+date: "`r paste('Last Update:', Sys.Date())`"
+---
+
+We use [plausible.io](plausible.io) for our analytics. This is an Open Source system that respect users privacy (does not use cookies and is GDPR compliant).
+
+Our website stats publicly available at plausible.io, you can check them [here](https://plausible.io/open-neuroscience.com?period=12mo).
+
+Being user-driven means we have to pay close attention at how our audience interacts with our content. This includes the website, our [Twitter account](twitter.com/openneurosci) `r fontawesome::fa("twitter", fill = "steelblue")`, and our [YouTube Channel](https://www.youtube.com/channel/UCHPvi_HaEU7OQgXQBh9ECvQ) `r fontawesome::fa("youtube", fill = "steelblue")`, where we host video content such us our Seminar Series Streaming.
+
+### Website Analytics
+
+
+```{r, results="hide", message=FALSE, warning=F}
+source("query_plausible.R")
+# this will get several denial of services
+# so we might need to run it multiple times
+query_plausible()
+```
+
+
+```{r, message=F, warning=F}
+# Takes a while because we have many many many files
+country_files <- list.files("website/plausible/country_data/",
+                             full.names = T)
+website <- map(country_files,
+               function(tt) read_csv(tt)) %>% 
+  set_names(country_files) %>% 
+  bind_rows(, .id = "file")
+```
+
+
+```{r parse-codes}
+website <- 
+website %>% 
+  mutate(code = str_extract(file, "_[A-Z]{3}"),
+         code = str_remove(code, "_")) 
+```
+
+
+```{r}
+website %>% 
+  ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
+  geom_tile() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "bottom")+
+  labs(y="Country")+
+  scale_fill_viridis_c()+
+  scale_x_date(breaks="2 months", date_labels = "%B\n%Y")
+```
+
+
+```{r}
+website %>% 
+  group_by(code, 
+           Date = as.factor(zoo::as.yearmon(Date))) %>% 
+  summarise(Visitors = sum(Visitors)) %>% 
+  ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
+  geom_tile() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = "bottom")+
+  labs(y="Country")+
+  scale_fill_viridis_c()+
+  #coord_equal()+
+  #scale_x_date(breaks="1 months", date_labels = "%B\n%Y")
+  NULL
+```
+
+
+```{r}
+website %>% 
+  group_by(code, 
+           Date = as.factor(zoo::as.yearmon(Date))) %>% 
+  summarise(Visitors = sum(Visitors)) %>% 
+  ungroup() %>% 
+  group_by(Date) %>% 
+  slice_max(Visitors, n = 10, with_ties = F) %>%  
+  ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
+  geom_tile() +
+#  theme(axis.text.y = element_blank(),
+#        axis.ticks.y = element_blank(),
+#        legend.position = "bottom")+
+  labs(y="Country")+
+  scale_fill_viridis_c()
+```
+
+
+
+### Twitter Analytics
+
+
+### YouTube Analytics

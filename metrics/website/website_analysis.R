@@ -16,6 +16,14 @@ names(wordpress) <- c("Country", "views")
 # remove that 
 wordpress <- filter(wordpress, !is.na(Country))
 country_data <- read_csv("2020_march_sep_website_visits_country.csv")
+
+total_visitors <- map_df(list.files("./website/plausible/", pattern = "visit",
+                                  full.names = T),
+                    read_csv)
+
+country_data <- map_df(list.files("./website/plausible/", pattern="countr",
+                                  full.names=T),
+                       )
 # clean the column
 country_data <- country_data %>% 
   separate(Visitors, into=c("views", "percent"), sep=" ") %>% 
@@ -56,8 +64,9 @@ country_data <-
 
 
 # summarise
-country_data <- country_data %>% group_by(name_long) %>% 
-                summarise(views = sum(views))
+country_data <- country_data %>% 
+  group_by(name_long) %>% 
+  summarise(views = sum(views))
 
 ggplot() +
   geom_sf(data = world_robinson) +
