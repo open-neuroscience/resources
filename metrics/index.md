@@ -29,9 +29,13 @@ where we host video content such us our Seminar Series Streaming.
 
 ![](index_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
+Same plot but with the logo outside the barplot.
+
 ![](index_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ![](index_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+These are the days with most visits to the site
 
     ## # A tibble: 26 x 3
     ## # Groups:   code [4]

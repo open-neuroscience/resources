@@ -156,9 +156,8 @@ website %>%
 
 ```{r}
 monthly_data <-
-website %>% 
-  group_by(code, 
-           Date = as.factor(zoo::as.yearmon(Date))) %>% 
+website %>%
+  group_by(code, Date=factor(zoo::as.yearmon(Date)))%>% 
   summarise(Visitors = sum(Visitors)) %>% 
   ungroup() 
 
@@ -167,6 +166,10 @@ top_countries <- monthly_data %>%
   slice_max(Visitors, n = 10, with_ties = F) %>% 
   pull(code)
   
+  x_axis_labels <- str_replace_all(
+    unique(monthly_data$Date),
+    pattern = " ", replacement = "\n")
+
   filter(monthly_data, code %in% top_countries) %>% 
   ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
   geom_tile() +
@@ -177,8 +180,8 @@ top_countries <- monthly_data %>%
     y="Country Code",
     x="")+
   theme(panel.background = element_blank()) +
-  scale_fill_viridis_c()+
-    scale_x_date(labels = "%B\n%Y")
+  scale_fill_viridis_c() +
+  scale_x_discrete(labels=x_axis_labels)
 ```
 
 #### Maps
@@ -276,6 +279,7 @@ annotation_custom(g_pic, xmin=0.5, xmax =2, ymin = 2000)
 
 ```
 
+Same plot but with the logo outside the barplot.
 
 ```{r}
 # logo outside
@@ -402,7 +406,8 @@ ggplot(twitter_df, aes(1, `engagement rate`))+
 ```{r}  
 ggplot(twitter_df, aes(1:nrow(twitter_df),
                cumsum(impressions)))+
-  geom_line(color=twitter_black, lwd=1)+
+  geom_area(color=twitter_black, lwd=1,
+            fill=twitter_blue)+
   #ggthemes::theme_clean() +
   theme_clean +
   theme(plot.background = element_rect(color=NA))+
