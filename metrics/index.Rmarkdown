@@ -1,6 +1,7 @@
 ---
 title: "Metrics"
 date: "`r paste('Last Update:', Sys.Date())`"
+output: rmarkdown::github_document
 ---
 
 We use [plausible.io](plausible.io) for our analytics. This is an Open Source system that respect users privacy (does not use cookies and is GDPR compliant).
@@ -11,13 +12,82 @@ Being user-driven means we have to pay close attention at how our audience inter
 
 ### Website Analytics
 
+```{r setup, echo=F}
+knitr::opts_chunk$set(echo=FALSE, message = F, warning=F)
+```
 
-```{r, results="hide", message=FALSE, warning=F}
+
+```{r, eval=F, results="hide", message=FALSE, warning=F}
+# Run manually or change to eval=T
 source("query_plausible.R")
 # this will get several denial of services
 # so we might need to run it multiple times
 query_plausible()
 ```
+
+```{r load-fonts, message=F, warning=F}
+library(showtext)
+library(extrafont)
+library(tidyverse)
+font_dir <- file.path(dirname(getwd()), "fonts", "MuseoModerno")
+fontfiles <- list.files(font_dir, pattern = "ttf", full.names = T)
+font_add("MuseoModerno", fontfiles)
+#extrafont::font_import(font_dir, prompt = F)
+showtext_auto()
+theme_set(theme(plot.title = element_text(size=16,
+                                  family="MuseoModerno"),
+                plot.subtitle = element_text(size=12, family="MuseoModerno"))
+)
+```
+
+```{r theme-nothing}
+
+theme_nothing <-   
+  # theme nothing
+  #ggthemes::theme_clean() +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position="bottom",
+        legend.box.background = element_rect(colour = NA),
+        legend.background = element_rect(colour = NA),
+        legend.title = element_text(face="plain"),
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        plot.background=element_blank()
+        #text = element_text(family="sans")
+        )
+
+theme_clean <-
+  theme(axis.line.x = element_line(colour = "black", size = 0.5, 
+        linetype = "solid"),
+        axis.line.y = element_line(colour = "black", 
+            size = 0.5, linetype = "solid"),
+        panel.grid.minor = element_blank(), 
+        panel.grid.major.y = element_line(colour = "gray", 
+            linetype = "dotted"), 
+        panel.grid.major.x = element_blank(), 
+        panel.background = element_blank(), 
+        panel.border = element_blank(), 
+        strip.background = element_rect(linetype = 0),
+        strip.text = element_text(), 
+        strip.text.x = element_text(vjust = 0.5), 
+        strip.text.y = element_text(angle = -90), 
+        legend.position = "right", 
+        legend.key = element_rect(fill = "white", colour = NA), 
+        #legend.background = element_rect(colour = "black"), 
+        #plot.background = element_rect(colour = "black"), 
+        plot.title = element_text(face = "bold"))
+
+
+```
+
+
 
 
 ```{r, message=F, warning=F}
@@ -35,7 +105,13 @@ website <- map(country_files,
 website <- 
 website %>% 
   mutate(code = str_extract(file, "_[A-Z]{3}"),
-         code = str_remove(code, "_")) 
+         code = str_remove(code, "_")) %>% 
+  # The first date of the month is duplicated %>% 
+  select(-file) %>% 
+  distinct() %>% 
+  # last per country will be first day of the new month
+  group_by(code) %>%   
+  filter(!Date == last(Date))
 ```
 
 
@@ -46,9 +122,14 @@ website %>%
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         legend.position = "bottom")+
-  labs(y="Country")+
+  labs(
+    title = "Daily visits to openneuroscience",
+    subtitle = "Each row is a country",
+    y="",
+    x="")+
   scale_fill_viridis_c()+
   scale_x_date(breaks="2 months", date_labels = "%B\n%Y")
+  
 ```
 
 
@@ -62,7 +143,10 @@ website %>%
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         legend.position = "bottom")+
-  labs(y="Country")+
+  labs(
+    title= "Monthly visits to openneuroscience",
+    subtitle = "Each row is a country",
+    y="", x="")+
   scale_fill_viridis_c()+
   #coord_equal()+
   #scale_x_date(breaks="1 months", date_labels = "%B\n%Y")
@@ -71,25 +155,314 @@ website %>%
 
 
 ```{r}
+monthly_data <-
 website %>% 
   group_by(code, 
            Date = as.factor(zoo::as.yearmon(Date))) %>% 
   summarise(Visitors = sum(Visitors)) %>% 
-  ungroup() %>% 
-  group_by(Date) %>% 
-  slice_max(Visitors, n = 10, with_ties = F) %>%  
+  ungroup() 
+
+top_countries <- monthly_data %>% 
+    group_by(Date) %>% 
+  slice_max(Visitors, n = 10, with_ties = F) %>% 
+  pull(code)
+  
+  filter(monthly_data, code %in% top_countries) %>% 
   ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
   geom_tile() +
-#  theme(axis.text.y = element_blank(),
-#        axis.ticks.y = element_blank(),
-#        legend.position = "bottom")+
-  labs(y="Country")+
-  scale_fill_viridis_c()
+  #theme_clean +
+  labs(
+    title = "Top countries by visitors",
+    subtitle = "Each country is on the top ten for at least a month",
+    y="Country Code",
+    x="")+
+  theme(panel.background = element_blank()) +
+  scale_fill_viridis_c()+
+    scale_x_date(labels = "%B\n%Y")
+```
+
+#### Maps
+
+```{r, warning=F, message=F}
+library(sf)
+library(rnaturalearth)
+# Get world sf data
+world <- ne_countries(scale = 'small', returnclass = 'sf')
+
+world_robinson <- st_transform(world, crs = '+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs')
+
+# exclude antartica
+world_robinson <- world_robinson %>% 
+  filter(!str_detect(name, "Antarctica"))
+
+
+# wordpress data
+li <- list.files(path= "website/stats_wordpress_website_2013-2016/",
+                 pattern = "countries", full.names = T)
+
+wordpress <- lapply(li, function(tt) read_csv(tt, col_names = FALSE)) %>%
+  bind_rows()
+names(wordpress) <- c("Country", "views")
+
+# TODO: There are issues here with the Country names, explore binding with countrycodes
+# TODO: bind with total_visitors from below
+
+# Make the summary data from plausible
+total_visitors <-
+website %>% 
+  group_by(code) %>% 
+  summarise(Visitors = sum(Visitors)) %>% 
+  rename(iso_a3 = code)
+
+period <- paste(format(range(website$Date), "%B-%Y"), collapse = " to ")
+period <- paste("Data ranging from", period)
+
+# Make the map
+ggplot() +
+  geom_sf(data = world_robinson) +
+  geom_sf(data = left_join(world_robinson,
+                           total_visitors,
+                           by = "iso_a3"),
+          aes(fill=log10(Visitors + 1)),
+          color="black",
+          size=0.5, na.rm = TRUE)+
+  labs(title = "Website visits",
+       subtitle = period) +
+  scale_fill_gradient(low="white", high="#F7490C",
+                      na.value = "white") +
+  theme_nothing
+  
+
+```
+
+
+```{r}
+# add regions by code
+website <-  website %>% 
+  left_join(
+  countrycode::codelist %>% 
+    select(code = iso3c, 
+           region = region),
+  by = "code") %>% 
+  # only keep complete cases
+  filter(complete.cases(region))
+
+region_barplot <- 
+  website %>% 
+  group_by(region) %>% 
+  summarise(Visitors = sum(Visitors)) %>% 
+  mutate(region = stringr::str_wrap(region, width=10),
+         region = fct_reorder(region, Visitors)) %>% 
+  ggplot(aes(region,
+             Visitors)) +
+  geom_col(color="black") +
+  scale_y_continuous(labels = scales::label_number_si()) +
+  theme(panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank()) +
+  labs(title = "Total openneuroscience visitors",
+       subtitle = period,
+       x="")
+
+
+# if we wanted to add logo
+#img <- magick::image_read("https://raw.githubusercontent.com/open-neuroscience/resources/master/logo/openneuroscience_blue_1600by400_border.png")  
+# small logo
+img <- magick::image_read("openneuro.jpeg")
+g_pic <- grid::rasterGrob(img, interpolate=TRUE)
+
+# logo inside
+region_barplot +
+annotation_custom(g_pic, xmin=0.5, xmax =2, ymin = 2000)
+
+```
+
+
+```{r}
+# logo outside
+region_barplot +
+  annotation_custom(g_pic, 
+                    xmin = 6.5, ymin = -3000, ymax=-1500) +
+  coord_cartesian(clip = "off") +
+  theme(plot.margin = unit(c(1, 1, 2, 1), "lines"))
 ```
 
 
 
+```{r}
+country_totals <-
+  website %>%
+  group_by(region, iso_a3 = code) %>% 
+  summarise(Visitors = sum(Visitors)) %>% 
+  mutate(region = stringr::str_wrap(region, width=10),
+         region = fct_reorder(region, Visitors)) 
+
+
+# some countries don't have geometries so we can't plot them
+data_for_map <-
+country_totals %>% 
+  dplyr::left_join(world_robinson, by = "iso_a3") %>% 
+  filter(complete.cases(scalerank))
+
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = world_robinson) +
+  geom_sf(data = st_as_sf(data_for_map),
+          aes(geometry=geometry,
+            fill = region,
+            alpha = log10(Visitors + 1)),
+          color="black",
+          size=0.5, na.rm = TRUE)+
+  labs(title = "Website visits",
+       subtitle = period,
+       fill="") +
+  scale_alpha_continuous() +
+  theme_nothing +
+  # do away with alpha legend and only keep fill
+  guides(fill = guide_legend(
+    override.aes = list(alpha = 0.5)),
+         alpha = FALSE)
+
+```
+
+These are the days with most visits to the site
+
+```{r outlier-events}
+website %>% 
+  group_by(code) %>%
+  mutate(v = scale(Visitors)) %>% 
+  filter(v > 2, Visitors > 10) %>% 
+  select(Date, code, Visitors) %>% 
+  arrange(desc(Visitors))
+```
+
+
 ### Twitter Analytics
+
+```{r}
+twitter_df <- lapply(list.files(path = "twitter/",
+                        pattern = ".csv",
+                        full.names = T), read_csv) %>%
+  bind_rows()
+
+# not sure why but there is a "summary" that gets appended
+# if there is no tweet id we don't want to see, we can summarise later
+twitter_df <-
+twitter_df %>% 
+  filter(!is.na(`Tweet id`))
+
+# date ranges
+date_range <- str_extract(range(twitter_df$time),
+            pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+# we switch dates from "yyyy-mm-dd" to "Month Year"
+text_date <- format(lubridate::parse_date_time(date_range,
+                                               orders = c("Y-m-d")),
+       "%B %Y")
+
+subtitle_period <- paste("Period:", text_date[1], "—", text_date[2])
+
+caption_twitter <- "Source @openneurosci analytics"
+### colors
+
+twitter_blue <- "#1DA1F2"
+twitter_black <- "#14171A"
+twitter_gray <- "#657786"
+
+
+ggplot(twitter_df,
+       aes(impressions))+
+  geom_histogram(color=twitter_black, fill=twitter_blue) +
+  scale_x_continuous(breaks = seq(0,11000, 2000),
+                     labels = scales::label_number_si())+
+  ggthemes::theme_clean()+
+  labs(title = "Views per tweet",
+       subtitle = subtitle_period,
+       caption = glue::glue(caption_twitter),
+       y="Tweets", x=""
+  )
+
+#ggsave("views_per_tweet.png", width=6, height=4, units = "in")
+  
+
+ggplot(twitter_df, aes(1, `engagement rate`))+
+  geom_violin(fill=twitter_gray)+
+  stat_summary(fun=mean)+
+  scale_y_continuous(labels = scales::label_percent())+
+  scale_x_continuous(limits=c(0,2), name = "")+
+  ggthemes::theme_clean()+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.line.x = element_blank())+
+  labs(title="Engagement Rate", subtitle = subtitle_period)
+```
+
+```{r}  
+ggplot(twitter_df, aes(1:nrow(twitter_df),
+               cumsum(impressions)))+
+  geom_line(color=twitter_black, lwd=1)+
+  #ggthemes::theme_clean() +
+  theme_clean +
+  theme(plot.background = element_rect(color=NA))+
+  scale_y_continuous(labels=scales::label_number_si())+
+  labs(title="Cumulative tweet views",
+       subtitle = subtitle_period,
+       caption = caption_twitter,
+       x= "Tweets", y="")
+
+# add twitter logo...  
+#cowplot::ggdraw(p)+
+#  cowplot::draw_image("https://help.twitter.com/content/dam/help-twitter/brand/logo.png",
+#                      scale = 0.3, y = -0.15, x=+0.4, clip = FALSE)
+
+
+#p
+#ggsave("cum_views_tweet.png", width=6, height=4, units = "in")
+
+
+```
+
+
+```{r twitter_days}
+twitter_df <- 
+twitter_df %>% 
+  mutate(wday = lubridate::wday(time, 
+                                label = T, week_start = 1))
+
+top_engagement <- filter(twitter_df, `engagement rate` > 0.06) %>%
+  pull(`Tweet id`) %>% 
+  as.character()
+
+twitter_df %>% 
+  ggplot(aes(wday, `engagement rate`)) +
+  ggbeeswarm::geom_quasirandom(color = twitter_black,
+                               fill = twitter_blue,
+                               pch = 21,
+                               size = 2, alpha=0.8) +
+  labs(title = "Engagement rate with @openneurosci tweets",
+       subtitle = subtitle_period,
+       y = "",
+       x = "")+
+  theme_clean +
+  scale_y_continuous(labels=scales::label_percent())
+  #ggrepel::geom_text_repel(data = filter(twitter_df,
+  #                                       `engagement rate` > 0.06),
+  #          aes(wday, `engagement rate`, label = as.character(`Tweet id`)))
+
+```
+
+
+```{r, eval=FALSE}
+# this will only work with hugo shortcodes
+map(
+  top_engagement,
+  function(tweet)
+  blogdown::shortcode("tweet", tweet)
+)
+```
+
 
 
 ### YouTube Analytics

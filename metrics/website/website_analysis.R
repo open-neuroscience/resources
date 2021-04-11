@@ -5,7 +5,7 @@ library(sf)
 library(rnaturalearth)
 
 # wordpress data
-li <- list.files(path= "stats_wordpress_website_2013-2016/",
+li <- list.files(path= "website/stats_wordpress_website_2013-2016/",
                  pattern = "countries", full.names = T)
 
 wordpress <- lapply(li, function(tt) read_csv(tt, col_names = FALSE)) %>%

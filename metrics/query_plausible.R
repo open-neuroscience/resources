@@ -22,7 +22,7 @@ query_plausible <- function(){
                                             "1 month"),
                to = lubridate::floor_date(
                  lubridate::add_with_rollback(lubridate::today(),
-                                              months(-2)),
+                                              months(-1)),
                  "1 month"),
                by = "1 month"),
     to = lubridate::add_with_rollback(from, months(1)))
