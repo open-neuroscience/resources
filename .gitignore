@@ -4,3 +4,6 @@
 #api and secrets
 *bot_api
 *autopost_secret
+
+#python stuff
+*pycache*
