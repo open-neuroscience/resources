@@ -1,2 +1,6 @@
 #r related files
 *.Rhistory
+
+#api and secrets
+*bot_api
+*autopost_secret
