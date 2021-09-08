@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
 
-# tweepy-bots/bots/favretweet.py
+
+
 
 """The Fav & Retweet Bot
 This bot uses the previously introduced Tweepy stream to 
@@ -73,5 +73,6 @@ if __name__ == "__main__":
 		  "openfmri","openeuroscience","WINRePo1",
 		  "openneuro","openmicroscopy","BlackInNeuro",
 		  "DeeplabCut","opentrons",#"theBossDB",
-		  "worldwideneuro","biorxiv_neursci"])
+		  "worldwideneuro",#"biorxiv_neursci"
+          ])
     #os.execv(__file__)

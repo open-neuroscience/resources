@@ -1,8 +1,7 @@
-#!/bin/bash
 
 
-export PYTHONPATH=~/miniconda3/bin/python3
-export PYTHONHOME=~/miniconda3/bin/python3
+
+
 
 echo "checking if the python script is already running"
 
@@ -13,7 +12,7 @@ then
 else
     echo "$SERVICE stopped"
     echo "starting $SERVICE"
-    bash -c "exec -a tweetBot python3 ./favretweet.py" 
+    bash -c "exec -a tweetBot python3 ~/bots/openneuro/favretweet.py" 
     
 
 fi
