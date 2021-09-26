@@ -95,7 +95,7 @@ theme_clean <-
 country_files <- list.files("website/plausible/country_data/",
                              full.names = T)
 website <- map(country_files,
-               function(tt) read_csv(tt)) %>% 
+               function(tt) vroom::vroom(tt)) %>% 
   set_names(country_files) %>% 
   bind_rows(, .id = "file")
 ```

@@ -78,9 +78,21 @@ query_plausible <- function(){
               country_df$fn,
               function(url, fn){
                 if (file.exists(fn) == FALSE) {
-                  download.file(url, fn)
+                  tryCatch(expr = {download.file(url, fn)},
+                           error = function(e){
+                             system(
+                               glue::glue("wget -O {fn} {url}")
+                             )
+                           }
+                  )
                   Sys.sleep(0.5)
                 }
               })
   
+}
+
+if (interactive()){
+  message("Not calling query_plausible() because interactive session.\nYou can call it from the console")
+} else {
+  query_plausible()  
 }
