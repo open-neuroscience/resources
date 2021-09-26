@@ -167,7 +167,8 @@ clean_post_title <- function(dirty_title, with_path = FALSE){
 
 
 # this is the ID
-ID <- "1qF5P8RKBSiE6qyInIoTBHdq2m9o5ZnvhnGKkmaJ83uI"
+
+ID <- #read file
 gs4_auth("openeuroscience@gmail.com")
 target <- read_sheet(ID)
 # this comes handy for later,
