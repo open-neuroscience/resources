@@ -4,6 +4,7 @@
 #api and secrets
 *bot_api
 *autopost_secret
+*plausible_credentials.json
 
 #python stuff
 *pycache*

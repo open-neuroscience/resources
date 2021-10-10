@@ -78,16 +78,14 @@ query_plausible <- function(){
               country_df$fn,
               function(url, fn){
                 if (file.exists(fn) == FALSE) {
-                  tryCatch(expr = {download.file(url, fn)},
-                           error = function(e){
-                             system(
-                               glue::glue("wget -O {fn} {url}")
-                             )
-                           }
-                  )
+                  # method = "curl" was failing....
+                  download.file(url, fn, method = "wget")
+                  #print(fn)
+                  #print(url)
                   Sys.sleep(0.5)
                 }
-              })
+                }
+              )
   
 }
 

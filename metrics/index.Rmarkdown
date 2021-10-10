@@ -95,9 +95,12 @@ theme_clean <-
 country_files <- list.files("website/plausible/country_data/",
                              full.names = T)
 website <- map(country_files,
-               function(tt) vroom::vroom(tt)) %>% 
+               function(tt)
+# names in data went from "Date" to "date" in august 2021 so we have to clean them....
+janitor::clean_names(vroom::vroom(tt))
+)%>% 
   set_names(country_files) %>% 
-  bind_rows(, .id = "file")
+  bind_rows(.id = "file")
 ```
 
 
@@ -111,13 +114,13 @@ website %>%
   distinct() %>% 
   # last per country will be first day of the new month
   group_by(code) %>%   
-  filter(!Date == last(Date))
+  filter(!date == last(date))
 ```
 
 
 ```{r}
 website %>% 
-  ggplot(aes(Date, code, fill=log10(Visitors + 1))) +
+  ggplot(aes(date, code, fill=log10(visitors + 1))) +
   geom_tile() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
