@@ -5,6 +5,10 @@
 *bot_api
 *autopost_secret
 *plausible_credentials.json
+*website_credentials.txt
+*sheet_id.txt
+
 
 #python stuff
 *pycache*
+.Rproj.user
