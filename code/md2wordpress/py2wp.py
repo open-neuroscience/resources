@@ -26,6 +26,9 @@ def add_follow_twitter(twitterHandle="openneurosci"):
     
     return addTwitter
 
+def add_tags():
+    pass
+
 def author(authorText="Charles Darwin"):
     authorString = '<!-- wp:group -->\n'+\
                         '<div class="wp-block-group"><!-- wp:heading {"level":3} -->\n'+\
