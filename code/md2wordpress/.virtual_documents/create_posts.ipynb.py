@@ -64,10 +64,10 @@ allPosts = pd.read_csv('https://docs.google.com/spreadsheets/d/' +
 import py2wp
 
 
-
+wpTags = wp.call(taxonomies.GetTerms('ontag'))
 #run a loop to go through all post entries and create posts as needed
 for index in allPosts.index:
-    if index ==3 and allPosts[allPosts.index==index]["posted"][index]get_ipython().getoutput("=True:")
+    if index <20 and allPosts[allPosts.index==index]["posted"][index]get_ipython().getoutput("=True:")
     #if allPosts[allPosts.index==index]["posted"][index]get_ipython().getoutput("=True:")
         print("start post ... ")
         entry = allPosts[allPosts.index==index]
@@ -82,13 +82,13 @@ for index in allPosts.index:
         projectURL = entry["Link to Project Website or GitHub repository"][index]
         postCreator = entry["Post Author"][index]
         entryTags = list()
-        wpTags = wp.call(taxonomies.GetTerms('post_tag'))
+
         for i in range(4):
             tagTemp = entry["Project categories (please select at most one per row) [Category {number}]".format(number=i+1)]
             #print(type(tagTemp.values[0]))
             if type(tagTemp.values[0]) is not float:
                 for wpEntry in wpTags:
-                    if wpEntry.name == tagTemp.values[0]:
+                    if wpEntry.name == tagTemp.values[0].lower():
                         entryTags.append(wpEntry)
                 #postTags.append("<WordPressTerm: b'term'>".format(term=tagTemp.values[0]))
                 #entryTags.append(tagTemp.values[0])
@@ -101,10 +101,10 @@ for index in allPosts.index:
                 #tag.name = item
                 #postTags.append(tag)
                 #del(tag)
-        tag = WordPressTerm()
-        tag.taxonomy = 'post_tag'
-        tag.name = item
-        postTags = tag
+        #tag = WordPressTerm()
+        #tag.taxonomy = 'post_tag'
+        #tag.name = item
+        #postTags = tag
         #'terms': [<WordPressTerm: b'neuroscience'>, <WordPressTerm: b'open source'>],
         #newPost.date = datetime.strptime(creationDate, 'get_ipython().run_line_magic("Y-%m-%d", " %H:%M:%S')")
         
@@ -154,7 +154,9 @@ for index in allPosts.index:
         newPost.author = "python-bot"
         newPost.slug = title
         newPost.terms = entryTags
+        newPost.excerpt = summary[0:200]
         newPost.id = wp.call(posts.NewPost(newPost))
+        
 
         #del(newPost)
         print("ready to wait")
