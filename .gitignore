@@ -8,6 +8,8 @@
 *website_credentials.txt
 *sheet_id.txt
 *zotero_sheet.txt
+*ipynb_checkpoints/*
+
 
 #python stuff
 *pycache*
