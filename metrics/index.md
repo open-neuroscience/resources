@@ -1,6 +1,6 @@
 Metrics
 ================
-Last Update: 2021-04-11
+Last Update: 2021-11-28
 
 We use [plausible.io](plausible.io) for our analytics. This is an Open
 Source system that respect users privacy (does not use cookies and is
@@ -17,48 +17,22 @@ where we host video content such us our Seminar Series Streaming.
 
 ### Website Analytics
 
-![](index_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-
-![](index_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-![](index_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](temp.png)<!-- -->
 
 #### Maps
 
+![](index_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 ![](index_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-![](index_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
-Same plot but with the logo outside the barplot.
-
-![](index_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
-
-![](index_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-These are the days with most visits to the site
-
-    ## # A tibble: 26 x 3
-    ## # Groups:   code [4]
-    ##    Date       code  Visitors
-    ##    <date>     <chr>    <dbl>
-    ##  1 2020-07-07 USA         51
-    ##  2 2020-07-22 USA         32
-    ##  3 2020-07-24 USA         32
-    ##  4 2021-03-24 USA         29
-    ##  5 2020-07-08 USA         28
-    ##  6 2020-10-01 USA         28
-    ##  7 2020-10-05 USA         28
-    ##  8 2020-11-12 USA         28
-    ##  9 2021-02-22 USA         28
-    ## 10 2020-10-06 USA         26
-    ## # … with 16 more rows
+![](index_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ### Twitter Analytics
 
-![](index_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->![](index_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](index_files/figure-gfm/impressions-per-tweet-1.png)<!-- -->
 
-![](index_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-![](index_files/figure-gfm/twitter_days-1.png)<!-- -->
+![](index_files/figure-gfm/total-views-1.png)<!-- -->
 
 ### YouTube Analytics
+
+TBA

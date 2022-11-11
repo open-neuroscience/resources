@@ -13,5 +13,6 @@ read_country_json <- function(){
          ) %>% 
     set_names(countries) %>% 
     bind_rows(.id="country_code")
+  country_df <- mutate(country_df, date = lubridate::as_date(date))
   return(country_df)
 }
