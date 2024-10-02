@@ -3,6 +3,7 @@ This might be useful for other platforms, such as hackaday.io, gitlab, wikifacto
 
 
 
+
 Hello!
 
 I'm reaching out because we would love to have this project listed on [Open Neuroscience](<https://open-neuroscience.com>), and also share information about it:
@@ -13,7 +14,7 @@ Briefly, we have a website where short descriptions about projects are listed, w
 
 Once a new entry is made, we make a quick check for spam, and publish it. 
 
-Once published, we make people aware of the new entry by [Twitter](https://twitter.com/openneurosci) and a [Facebook](https://www.facebook.com/OpenNeuroscience) group. 
+Once published, we make people aware of the new entry by [Twitter](https://twitter.com/openneurosci), [Mastodon](https://fosstodon.org/@open_neuroscience)  and [LinkedIn](https://www.linkedin.com/company/open-neuroscience)
 
 **To add information about their project, developers only need to fill out this [form](https://forms.office.com/e/5QtUtMc3hw)**
 
@@ -32,4 +33,3 @@ Open Neuroscience tech stack leverages open source tools as much as possible:
   - You can check our visitor stats [here](https://plausible.io/open-neuroscience.com)
 
 Please [get in touch](mailto:info@open-neuroscience.com) if you have any questions or would like to collaborate!
-
