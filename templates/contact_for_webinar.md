@@ -7,7 +7,7 @@ I am reaching out on behalf of [Open Neuroscience](https://open-neuroscience.com
 
 The goal of this seminar series is to highlight projects that are listed in our website and allow developers to show their projects and get feedback from the community.
 
-If this is interesting for you and your lab, could you please fill out this [form]([url](https://forms.office.com/e/xmkaapqVDg), this would allow us to start preparing things on our side. 
+If this is interesting for you and your lab, could you please fill out this [form](https://forms.office.com/e/xmkaapqVDg), this would allow us to start preparing things on our side. 
 
 Dates and times are flexible, but we would like to have about 2-3 weeks time between confirming the webinar, so that we can properly advertise it. 
 
